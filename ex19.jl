@@ -1,5 +1,10 @@
 using HorizonSideRobots
-function movetoendrec!(robot, side)
-    !isborder(robot, side) && (move!(robot,side); movetoendrec!(robot,side))
+robot = Robot(animate = true)
+
+function movetoendrecursion!(robot, side)
+    while !isborder(robot,side)
+        move!(robot,side)
+        movetoendrecursion!(robot,side)
+    end
     return nothing
-end
+end 
