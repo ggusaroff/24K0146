@@ -1,21 +1,32 @@
+#17
+
 using HorizonSideRobots
+robot=Robot(animate=true)
 
-robot = Robot(animate=true)
 
-function along!(stop_condition::Function, robot, side, k)
-for i in 1:k
-    if stop_condition(robot) return end
-    move!(robot, side)
+
+
+function find_direct!(stop_condition::Function, robot, side, nmax_steps)
+    n=0
+    while !(stop_condition() || (n == nmax_steps))
+        move!(robot, side)
+        n+=1
+    end
+    return stop_condition()
 end
+
+function find!(robot)
+    spiral!(()->ismarker(robot), robot)
 end
 
 function spiral!(stop_condition::Function, robot)
-k = 1
-while !stop_condition(robot)
-    along!(stop_condition, robot, Nord, k)
-    along!(stop_condition, robot, Ost, k)
-    along!(stop_condition, robot, Sud, k + 1)
-    along!(stop_condition, robot, West, k + 1)
-    k += 2
+    nmax_steps = 1
+    s = Nord
+    while !find_direct!(stop_condition, robot, s, nmax_steps)
+        (s in (Nord, Sud)) && (nmax_steps += 1)
+        s = left(s)
+    end
 end
-end
+
+
+left(side) = HorizonSide((Int(side)+1)%4)
